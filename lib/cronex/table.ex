@@ -31,7 +31,7 @@ defmodule Cronex.Table do
 
   # Callback functions
   def init(args) do
-    if is_nil(args[:scheduler]), do: raise_scheduler_not_provided_error() 
+    if is_nil(args[:scheduler]), do: raise_scheduler_not_provided_error()
 
     GenServer.cast(self(), :init)
 
@@ -104,10 +104,10 @@ defmodule Cronex.Table do
   defp try_become_leader(%{scheduler: scheduler} = state) do
     trans_result = :global.trans(
       {:leader, self()},
-      fn -> 
+      fn ->
         case GenServer.multi_call(Node.list, scheduler.table, :new_leader) do
           {_, []} -> :ok
-          _ -> :aborted 
+          _ -> :aborted
         end
       end,
       Node.list([:this, :visible]),
@@ -121,7 +121,7 @@ defmodule Cronex.Table do
   end
 
   defp do_add_job(state, %Job{} = job) do
-    index = state[:jobs] |> Map.keys |> Enum.count 
+    index = state[:jobs] |> Map.keys |> Enum.count
     put_in(state, [:jobs, index], job)
   end
 
@@ -130,6 +130,6 @@ defmodule Cronex.Table do
   end
 
   defp ping_interval do
-    Application.get_env(:cronex, :ping_interval, 30000)
+    Application.get_env(:cronex, :ping_interval, 60000)
   end
 end
